@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Products</title>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+
+<h1>Products</h1>
+
+<h2>Create product</h2>
+
+<!-- Button that loads the form HTML -->
+<button
+  hx-get="/products-form"
+  hx-target="#create-form"
+  hx-swap="innerHTML"
+>
+  New Product
+</button>
+
+<!-- The form will be injected here -->
+<div id="create-form"></div>
+
+<hr>
+
+
+<!-- Button to load products -->
+<button
+hx-get="/products-table" 
+    hx-target="#products-body"
+    hx-trigger="click"
+>
+    Load Products
+</button>
+
+<br><br>
+
+<!-- Products table -->
+<table border="1" cellpadding="8">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>In stock</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody id="products-body">
+        <!-- HTMX will inject rows here -->
+    </tbody>
+</table>
+
+</body>
+</html>

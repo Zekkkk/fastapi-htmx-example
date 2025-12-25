@@ -1,0 +1,18 @@
+{% for product in products %}
+<tr>
+    <td>{{ product.name }}</td>
+    <td>{{ product.price }}</td>
+    <td>
+        {% if product.in_stock %}
+            in stock
+        {% else %}
+            out of stock
+        {% endif %}
+    </td>
+    <td>
+        <button hx-delete="/products/{{ product.name }}">
+    Delete
+        </button>   
+    </td>
+</tr>
+{% endfor %}
