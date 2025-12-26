@@ -97,13 +97,12 @@ def update(name: str, dto: UpdateProductDTO):
 
 
 # DELETE
-@app.delete("/products/{name}", status_code=204)
-def delete(name: str):
-    success = delete_product(name)
-    if not success:
-        raise HTTPException(status_code=404, detail="Product not found")
-
-    return Response(status_code=204)
+@app.delete("/products/{name}")
+def delete(name: str): #defines function that will respond to DELETE requests at the /products/{name} endpoint
+    success = delete_product(name) # calls the delete_product function from database
+    if not success: # checks if the deletion was unsuccessful
+        raise HTTPException(status_code=404, detail="Product not found") # raises 404 error if product not found
+    return ""
 
 
 # new endpoint to create product via form
@@ -126,7 +125,7 @@ def create_from_form(
 
     create_product(dto)
 
-    # 🔧 FIX: return updated table HTML so HTMX can refresh UI
+    # After creating the product, redirect to the products table page
     products = get_all_products()
     return templates.TemplateResponse(
         "products_table.html",
