@@ -1,4 +1,3 @@
-{% for product in products %}
 <tr>
     <td>{{ product.name }}</td>
     <td>{{ product.price }}</td>
@@ -11,7 +10,6 @@
     </td>
     <td>
         <button
-            class="btn"
             hx-delete="/products/{{ product.name }}"  # DELETE request to delete product 
             hx-confirm="Are you sure?"                # confirmation for the deletion
             hx-target="closest tr"                     # target the closest table row  
@@ -21,4 +19,3 @@
         </button>
     </td>
 </tr>
-{% endfor %}

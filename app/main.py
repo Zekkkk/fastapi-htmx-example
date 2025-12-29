@@ -113,6 +113,8 @@ def create_from_form(
     price: float = Form(...),
     in_stock: bool = Form(False),
 ):
+    # Check how to move business logic to service layer.
+
     dto = CreateProductDTO(
         name=name,
         price=price,
@@ -123,14 +125,13 @@ def create_from_form(
     if existing:
         raise HTTPException(status_code=409, detail="Product already exists")
 
-    create_product(dto)
+    new_product = create_product(dto)
 
     # After creating the product, redirect to the products table page
-    products = get_all_products()
     return templates.TemplateResponse(
-        "products_table.html",
+        "product.html",
         {
             "request": request,
-            "products": products
+            "product": new_product
         }
     )
