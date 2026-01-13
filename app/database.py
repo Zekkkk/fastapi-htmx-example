@@ -1,5 +1,6 @@
 import sqlite3
-from models import Product, CreateProductDTO, UpdateProductDTO
+from .models import Product, CreateProductDTO, UpdateProductDTO
+
 
 
 

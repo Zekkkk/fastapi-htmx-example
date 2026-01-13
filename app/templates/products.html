@@ -1,95 +1,92 @@
-{% from "components/dialog.html" import show_post with context %}
+{% from "components/dialog.html" import dialog %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Products</title>
+  <meta charset="UTF-8" />
+  <title>Products</title>
 
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <!-- Basecoat CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.9/dist/basecoat.cdn.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.9/dist/js/all.min.js" defer></script>
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+  <!-- Basecoat CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.9/dist/basecoat.cdn.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.9/dist/js/all.min.js" defer></script>
 </head>
+
 <body>
 
-<h1>Products</h1>
+  <h1>Products</h1>
 
-<h2>Create product</h2>
+  <h2>Create product</h2>
 
-<!-- Button that loads the form HTML -->
-<button
+  {% call dialog(
+  id="dialog-add-product",
+  trigger='<span class="btn-outline">Add Product</span>',
+  title="Create New Product",
+  description="Fill out the form below to create a product.",
+  footer='<button class="btn" type="submit" form="product-form">Create</button>',
+  dialog_attrs={"class": "w-full sm:max-w-[425px] max-h-[612px]"},
+  body_attrs={"class": "p-4"}
+) %}
+  {% include "product_form.html" %}
+{% endcall %}
+
+
+  <hr>
+
+  <!-- Button to load products -->
+  <button
     class="btn"
-    hx-get="/products-form"
-    hx-target="#create-form"
-    hx-swap="innerHTML" 
->
-  New Product
-</button>
-<button type="button" onclick="document.getElementById('dialog-add-product').showModal()" class="btn-outline">Add Product</button>
-<dialog id="demo-dialog-edit-profile" class="dialog w-full sm:max-w-[425px] max-h-[612px]" aria-labelledby="demo-dialog-edit-profile-title" aria-describedby="demo-dialog-edit-profile-description" onclick="if (event.target === this) this.close()"></dialog>
-
-
-
-
-<!-- The form will be injected here -->
-<div id="create-form"></div>
-
-<hr>
-
-
-<!-- Button to load products -->
-<button
-    class="btn"
-    hx-get="/products-table" 
+    hx-get="/products-table"
     hx-target="#products-body"
     hx-swap="innerHTML"
     hx-trigger="click"
->
+  >
     Load Products
-</button>
+  </button>
 
-<br><br>
+  <br><br>
 
-<!-- Products table -->
-<table class="table" border="1" cellpadding="8">
+  <!-- Products table -->
+  <table class="table" border="1" cellpadding="8">
     <thead>
-        <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>In stock</th>
-            <th>Actions</th>
-        </tr>
+      <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>In stock</th>
+        <th>Actions</th>
+      </tr>
     </thead>
 
     <tbody id="products-body">
-        {% for product in products %}
-<tr>
-    <td>{{ product.name }}</td>
-    <td>{{ product.price }}</td>
-    <td>
-        {% if product.in_stock %}
+      {% for product in products %}
+      <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.price }}</td>
+        <td>
+          {% if product.in_stock %}
             in stock
-        {% else %}
+          {% else %}
             out of stock
-        {% endif %}
-    </td>
-    <td>
-        <button
+          {% endif %}
+        </td>
+        <td>
+          <!-- Valid HTMX attributes (no # comments inside attributes) -->
+          <button
             class="btn"
-            hx-delete="/products/{{ product.name }}"  # DELETE request to delete product 
-            hx-confirm="Are you sure?"                # confirmation for the deletion
-            hx-target="closest tr"                     # target the closest table row  
-            hx-swap="delete"                            #  FIXED*** remove the row from the DOM when we deleted we didnt remove it 
-        >
+            hx-delete="/products/{{ product.name }}"
+            hx-confirm="Are you sure?"
+            hx-target="closest tr"
+            hx-swap="delete"
+          >
             Delete
-        </button>
-    </td>
-</tr>
-{% endfor %}
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
     </tbody>
-</table>
+  </table>
 
 </body>
 </html>

@@ -1,7 +1,9 @@
 <form
+  id="product-form"
   hx-post="/products-form"
   hx-target="#products-body"
   hx-swap="beforeend"
+  hx-on::after-request="if(event.detail.successful){ this.reset(); document.getElementById('dialog-add-product').close(); }"
 >
   <label>
     Name:
@@ -21,5 +23,6 @@
   </label>
   <br><br>
 
-  <button  type="submit">Create</button>
+  {# Optional: keep this button if you want Enter/submit inside the form too #}
+  <button class="btn" type="submit">Create</button>
 </form>

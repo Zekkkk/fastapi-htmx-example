@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
-from fastapi import Response
-from models import Product, CreateProductDTO, UpdateProductDTO
-from database import (
+
+from .models import Product, CreateProductDTO, UpdateProductDTO
+from .database import (
     create_tables,
     create_product,
     get_product_by_name,
@@ -13,7 +13,9 @@ from database import (
 )
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+
+# IMPORTANT: templates folder location
+templates = Jinja2Templates(directory="app/templates")
 
 # Ensure DB exists at startup
 create_tables()
@@ -25,7 +27,7 @@ def root():
     return {"message": "API is running"}
 
 
-# new root for the html page
+# HTML PAGE
 @app.get("/products-page")
 def products_page(request: Request):
     products = get_all_products()
@@ -38,7 +40,7 @@ def products_page(request: Request):
     )
 
 
-# products table page
+# PRODUCTS TABLE (HTMX)
 @app.get("/products-table")
 def products_table(request: Request):
     products = get_all_products()
@@ -51,7 +53,7 @@ def products_table(request: Request):
     )
 
 
-# product form page to create new product
+# PRODUCT FORM (HTMX)
 @app.get("/products-form")
 def products_form(request: Request):
     return templates.TemplateResponse(
@@ -60,7 +62,7 @@ def products_form(request: Request):
     )
 
 
-# CREATE (JSON API – Swagger, Postman, etc.)
+# CREATE (JSON API)
 @app.post("/products", response_model=Product)
 def create(dto: CreateProductDTO):
     existing = get_product_by_name(dto.name)
@@ -70,7 +72,7 @@ def create(dto: CreateProductDTO):
     return create_product(dto)
 
 
-# READ ALL
+# READ ALL (JSON)
 @app.get("/products", response_model=list[Product])
 def read_all():
     return get_all_products()
@@ -98,14 +100,14 @@ def update(name: str, dto: UpdateProductDTO):
 
 # DELETE
 @app.delete("/products/{name}")
-def delete(name: str): #defines function that will respond to DELETE requests at the /products/{name} endpoint
-    success = delete_product(name) # calls the delete_product function from database
-    if not success: # checks if the deletion was unsuccessful
-        raise HTTPException(status_code=404, detail="Product not found") # raises 404 error if product not found
+def delete(name: str):
+    success = delete_product(name)
+    if not success:
+        raise HTTPException(status_code=404, detail="Product not found")
     return ""
 
 
-# new endpoint to create product via form
+# CREATE VIA FORM (HTMX)
 @app.post("/products-form")
 def create_from_form(
     request: Request,
@@ -113,8 +115,6 @@ def create_from_form(
     price: float = Form(...),
     in_stock: bool = Form(False),
 ):
-    # Check how to move business logic to service layer.
-
     dto = CreateProductDTO(
         name=name,
         price=price,
@@ -125,13 +125,12 @@ def create_from_form(
     if existing:
         raise HTTPException(status_code=409, detail="Product already exists")
 
-    new_product = create_product(dto)
+    create_product(dto)
 
-    # After creating the product, redirect to the products table page
     return templates.TemplateResponse(
-        "product.html",
+        "products_table.html",
         {
             "request": request,
-            "product": new_product
+            "products": get_all_products()
         }
     )

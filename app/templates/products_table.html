@@ -10,12 +10,16 @@
         {% endif %}
     </td>
     <td>
+        <!-- DELETE request to delete product -->
+        <!-- confirmation for the deletion -->
+        <!-- target the closest table row -->
+        <!-- remove the row from the DOM when deleted -->
         <button
             class="btn"
-            hx-delete="/products/{{ product.name }}"  # DELETE request to delete product 
-            hx-confirm="Are you sure?"                # confirmation for the deletion
-            hx-target="closest tr"                     # target the closest table row  
-            hx-swap="delete"                            #  FIXED*** remove the row from the DOM when we deleted we didnt remove it 
+            hx-delete="/products/{{ product.name }}"
+            hx-confirm="Are you sure?"
+            hx-target="closest tr"
+            hx-swap="delete"
         >
             Delete
         </button>
