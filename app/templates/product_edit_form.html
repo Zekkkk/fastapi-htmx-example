@@ -1,0 +1,26 @@
+<form
+  id="edit-product-form"
+  hx-post="/products/{{ product.name }}/edit"
+  hx-target="#row-{{ product.name }}"
+  hx-swap="outerHTML"
+  hx-on::after-request="if(event.detail.successful){ document.getElementById('dialog-edit-product').close(); }"
+>
+  <div class="space-y-3">
+
+    <div class="text-sm">
+      <strong>Name:</strong> {{ product.name }}
+    </div>
+
+    <label class="space-y-1 block">
+      <div class="text-sm font-medium">Price</div>
+      <input class="input w-full" type="number" name="price" step="0.01" value="{{ product.price }}" required>
+    </label>
+
+    <label class="flex items-center gap-2">
+      <input type="checkbox" name="in_stock" value="true" {% if product.in_stock %}checked{% endif %}>
+      <span class="text-sm">In stock</span>
+    </label>
+
+    <button class="btn w-full" type="submit">Save</button>
+  </div>
+</form>

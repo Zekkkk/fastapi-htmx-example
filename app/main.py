@@ -125,12 +125,64 @@ def create_from_form(
     if existing:
         raise HTTPException(status_code=409, detail="Product already exists")
 
-    create_product(dto)
+    #  ADDED: we keep the returned created object so we can render ONE row
+    new_product = create_product(dto)
 
+    #  ADDED: return ONE <tr> (product.html), not the whole table
+    # Because the form uses hx-target="#products-body" and hx-swap="beforeend"
     return templates.TemplateResponse(
-        "products_table.html",
+        "product.html",
         {
             "request": request,
-            "products": get_all_products()
+            "product": new_product
         }
+    )
+
+
+
+#  ADDED Edit endpoints
+@app.get("/products/{name}/edit")
+def edit_product_form(request: Request, name: str):
+    product = get_product_by_name(name)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return templates.TemplateResponse(
+        "product_edit_form.html",   # CHANGED (was product_form.html)
+        {
+            "request": request,
+            "product": product
+        }
+    )
+    
+# ADDED Edit form submission
+@app.post("/products/{name}/edit")
+def edit_product_submit( 
+    request: Request,
+    name: str,
+    price: float = Form(...),
+    in_stock: bool = Form(False),
+):
+    dto = UpdateProductDTO(price=price, in_stock=in_stock)
+
+    updated = update_product(name, dto)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return templates.TemplateResponse(
+        "product.html",
+        {"request": request, "product": updated}
+    )
+
+#  ADDED: Search endpoint for HTMX
+@app.get("/products/search")
+def search_products(request: Request, q: str = ""):
+    all_products = get_all_products()
+    # Filter by name (case-insensitive)
+    filtered = [p for p in all_products if q.lower() in p.name.lower()]
+    
+    # We reuse products_table.html to keep the <tbody> content consistent
+    return templates.TemplateResponse(
+        "products_table.html", 
+        {"request": request, "products": filtered}
     )

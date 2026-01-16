@@ -4,89 +4,112 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Products</title>
-
-  <!-- HTMX -->
+  <title>Product Management</title>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-
-  <!-- Basecoat CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.9/dist/basecoat.cdn.min.css">
   <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.9/dist/js/all.min.js" defer></script>
 </head>
 
 <body>
+  <main>
+    <header>
+      <div class="space-y-1">
+        <h1>Inventory Dashboard</h1>
+        <p class="text-sm text-muted-foreground">
+          Total: <strong>{{ products|length }}</strong> items 
+        </p>
+      </div>
 
-  <h1>Products</h1>
+      {% call dialog(
+        id="dialog-add-product",
+        trigger='<span class="btn-primary">+ New Product</span>',
+        title="Create New Product",
+        dialog_attrs={"class": "w-full sm:max-w-[420px]"}
+      ) %}
+        {% include "product_form.html" %}
+      {% endcall %}
+    </header>
 
-  <h2>Create product</h2>
+    <section class="space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-4 p-2 bg-muted/30 rounded-lg">
+        <div class="flex items-center gap-2 flex-1 min-w-[300px]">
+          <span class="text-sm font-medium">Filter:</span>
+          <div class="relative flex-1">
+            <input 
+              id="search-input"
+              type="text" 
+              name="q" 
+              class="input w-full" 
+              placeholder="Search products..." 
+              hx-get="/products/search" 
+              hx-trigger="keyup changed delay:300ms" 
+              hx-target="#products-body" 
+              hx-indicator="#search-spinner"
+            >
+            <div id="search-spinner" class="htmx-indicator absolute right-3 top-2">
+               <small>...</small>
+            </div>
+          </div>
+        </div>
 
-  {% call dialog(
-  id="dialog-add-product",
-  trigger='<span class="btn-outline">Add Product</span>',
-  title="Create New Product",
-  description="Fill out the form below to create a product.",
-  footer='<button class="btn" type="submit" form="product-form">Create</button>',
-  dialog_attrs={"class": "w-full sm:max-w-[425px] max-h-[612px]"},
-  body_attrs={"class": "p-4"}
-) %}
-  {% include "product_form.html" %}
-{% endcall %}
-
-
-  <hr>
-
-  <!-- Button to load products -->
-  <button
-    class="btn"
-    hx-get="/products-table"
-    hx-target="#products-body"
-    hx-swap="innerHTML"
-    hx-trigger="click"
-  >
-    Load Products
-  </button>
-
-  <br><br>
-
-  <!-- Products table -->
-  <table class="table" border="1" cellpadding="8">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Price</th>
-        <th>In stock</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-
-    <tbody id="products-body">
-      {% for product in products %}
-      <tr>
-        <td>{{ product.name }}</td>
-        <td>{{ product.price }}</td>
-        <td>
-          {% if product.in_stock %}
-            in stock
-          {% else %}
-            out of stock
-          {% endif %}
-        </td>
-        <td>
-          <!-- Valid HTMX attributes (no # comments inside attributes) -->
-          <button
-            class="btn"
-            hx-delete="/products/{{ product.name }}"
-            hx-confirm="Are you sure?"
-            hx-target="closest tr"
-            hx-swap="delete"
-          >
-            Delete
+        <div class="flex gap-2">
+          <button class="btn-outline" onclick="document.getElementById('search-input').value=''; htmx.trigger('#search-input', 'keyup')">
+            Clear
           </button>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+          <button class="btn" hx-get="/products-table" hx-target="#products-body">
+            Reload
+          </button>
+        </div>
+      </div>
 
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="products-body">
+          {% if products and products|length > 0 %}
+            {% for product in products %}
+              {% include "product.html" %}
+            {% endfor %}
+          {% else %}
+            {% include "products_table.html" %}
+          {% endif %}
+        </tbody>
+      </table>
+    </section>
+
+    {% call dialog(id="dialog-edit-product", title="Update Product") %}
+      <div id="edit-slot"></div>
+    {% endcall %}
+
+    {% set delete_footer %}
+      <button class="btn" onclick="document.getElementById('delete-alert-dialog').close()">Cancel</button>
+      <button 
+        id="confirm-delete-btn"
+        class="btn-primary" 
+        style="background-color: #ef4444; border: none;"
+        hx-delete="" 
+        hx-target="" 
+        hx-swap="delete"
+        hx-on::after-request="document.getElementById('delete-alert-dialog').close()"
+      >
+        Confirm Delete
+      </button>
+    {% endset %}
+
+    {% call dialog(
+      id="delete-alert-dialog",
+      title="Delete Product?",
+      description="This will permanently remove the item from your inventory database.",
+      footer=delete_footer,
+      close_button=false
+    ) %}{% endcall %}
+
+  </main>
 </body>
 </html>

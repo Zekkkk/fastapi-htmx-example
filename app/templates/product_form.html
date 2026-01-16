@@ -1,28 +1,33 @@
+<!-- ADDED (V1.0): HTMX after-request hook: if request succeeded -> reset form + close dialog -->
 <form
   id="product-form"
   hx-post="/products-form"
   hx-target="#products-body"
   hx-swap="beforeend"
-  hx-on::after-request="if(event.detail.successful){ this.reset(); document.getElementById('dialog-add-product').close(); }"
+  hx-on::after-request="
+    if(event.detail.successful){
+      this.reset();
+      document.getElementById('dialog-add-product').close();
+    }
+  "
 >
-  <label>
-    Name:
-    <input type="text" name="name" required>
-  </label>
-  <br>
+  <div class="space-y-3">
+    <label class="space-y-1 block">
+      <div class="text-sm font-medium">Name</div>
+      <input class="input w-full" type="text" name="name" required>
+    </label>
 
-  <label>
-    Price:
-    <input type="number" name="price" step="0.01" required>
-  </label>
-  <br>
+    <label class="space-y-1 block">
+      <div class="text-sm font-medium">Price</div>
+      <input class="input w-full" type="number" name="price" step="0.01" required>
+    </label>
 
-  <label>
-    In stock:
-    <input type="checkbox" name="in_stock" value="true">
-  </label>
-  <br><br>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" name="in_stock" value="true">
+      <span class="text-sm">In stock</span>
+    </label>
 
-  {# Optional: keep this button if you want Enter/submit inside the form too #}
-  <button class="btn" type="submit">Create</button>
+    <!-- ADDED  Submit button inside form so Enter key works + good UX -->
+    <button class="btn w-full" type="submit">Create</button>
+  </div>
 </form>

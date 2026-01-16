@@ -1,28 +1,16 @@
-{% for product in products %}
-<tr>
-    <td>{{ product.name }}</td>
-    <td>{{ product.price }}</td>
-    <td>
-        {% if product.in_stock %}
-            in stock
-        {% else %}
-            out of stock
-        {% endif %}
-    </td>
-    <td>
-        <!-- DELETE request to delete product -->
-        <!-- confirmation for the deletion -->
-        <!-- target the closest table row -->
-        <!-- remove the row from the DOM when deleted -->
-        <button
-            class="btn"
-            hx-delete="/products/{{ product.name }}"
-            hx-confirm="Are you sure?"
-            hx-target="closest tr"
-            hx-swap="delete"
-        >
-            Delete
-        </button>
-    </td>
-</tr>
-{% endfor %}
+{% if products and products|length > 0 %}
+    {% for product in products %}
+        {% include "product.html" %}
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="4" class="text-center py-8">
+            <div class="text-muted-foreground">
+                <p>No products found matching your search.</p>
+                <button class="btn-link text-sm" onclick="document.getElementById('search-input').value=''; htmx.trigger('#search-input', 'keyup')">
+                  View all products
+                </button>
+            </div>
+        </td>
+    </tr>
+{% endif %}

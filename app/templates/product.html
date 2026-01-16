@@ -1,21 +1,24 @@
-<tr>
-  <td>{{ product.name }}</td>
-  <td>{{ product.price }}</td>
+<tr id="row-{{ product.name }}" class="hover:bg-muted/50 transition-colors">
+  <td class="font-semibold">{{ product.name }}</td>
+  <td>${{ product.price }}</td>
   <td>
     {% if product.in_stock %}
-      in stock
+      <span class="badge" style="background: #dcfce7; color: #15803d;">Active</span>
     {% else %}
-      out of stock
+      <span class="badge" style="background: #f3f4f6; color: #6b7280;">Out of Stock</span>
     {% endif %}
   </td>
-  <td>
-    <button
-      class="btn"
-      hx-delete="/products/{{ product.name }}"
-      hx-confirm="Are you sure?"
-      hx-target="closest tr"
-      hx-swap="delete"
-    >
+  <td class="text-right">
+    <button class="btn" hx-get="/products/{{ product.name }}/edit" hx-target="#edit-slot" hx-on:click="document.getElementById('dialog-edit-product').showModal()">
+      Edit
+    </button>
+    <button class="btn-outline" hx-on:click="
+        const btn = document.getElementById('confirm-delete-btn');
+        btn.setAttribute('hx-delete', '/products/{{ product.name }}');
+        btn.setAttribute('hx-target', '#row-{{ product.name }}');
+        htmx.process(btn);
+        document.getElementById('delete-alert-dialog').showModal();
+      ">
       Delete
     </button>
   </td>
