@@ -85,3 +85,37 @@ def delete_item(item_name: str):
 # To run the app, use the command: uvicorn main:app --reload
 #ta modivikoj items per ti aksesau nje item  (cola) me pak fjal nje item specifik
 # ta ndroj databasen nvend at tperdori dict
+
+
+
+
+@app.get("/items/search")
+def search_items(name: str):
+    results = []
+
+    for key in items:
+        if key.lower() == name.lower():
+            results.append(items[key])
+
+    return results
+
+
+@app.get("/items/expensive")
+def get_expensive_items():
+    expensive_items = []
+
+    for key in items:
+        if items[key].price > 1:
+            expensive_items.append(items[key])
+
+    return expensive_items
+
+
+@app.get("/items/total-value")
+def calculate_total_value():
+    total = 0
+
+    for key in items:
+        total = total + items[key].price
+
+    return {"total": total}
